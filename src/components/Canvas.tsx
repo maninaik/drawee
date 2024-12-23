@@ -1,99 +1,134 @@
-'use client';
+'use client'
 
-import { forwardRef, useEffect, useRef, ForwardedRef, useLayoutEffect } from 'react';
-
-type Shape = 'circle' | 'square' | 'text';
+import {
+	forwardRef,
+	useRef,
+	ForwardedRef,
+	useState,
+	useLayoutEffect,
+} from 'react'
+import { ToolType, ElementType } from '@/types'
+import { useHistory } from '@/hooks/useHistory'
 
 interface CanvasProps {
-  selectedShape: Shape;
+	selectedShape: ToolType
 }
 
 const Canvas = forwardRef(function Canvas(
-  { selectedShape }: CanvasProps,
-  forwardedRef: ForwardedRef<HTMLCanvasElement>
+	{ selectedShape }: CanvasProps,
+	forwardedRef: ForwardedRef<HTMLCanvasElement>
 ) {
-  const localCanvasRef = useRef<HTMLCanvasElement>(null);
-  
-  const canvasRef = (forwardedRef as React.RefObject<HTMLCanvasElement>) || localCanvasRef;
+	const localCanvasRef = useRef<HTMLCanvasElement>(null)
+	const [isDrawing, setIsDrawing] = useState(false)
+	const [drawingStartPosition, setDrawingStartPosition] = useState<{
+		x: number
+		y: number
+	}>({ x: 0, y: 0 })
+	const [selectedElement, setSelectedElement] = useState<ElementType | null>(
+		null
+	)
+	const { elements, setElements } = useHistory([])
 
-  useLayoutEffect(() => {
-    if (canvasRef.current) {
-      canvasRef.current.width = window.innerWidth - 250; // sidebar
-      canvasRef.current.height = window.innerHeight - 40; // padding
-    }
-  }, [canvasRef]);
+	const canvasRef =
+		(forwardedRef as React.RefObject<HTMLCanvasElement>) || localCanvasRef
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+	const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+		const canvas = canvasRef.current
+		if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+		const ctx = canvas.getContext('2d')
+		if (!ctx) return
 
-    ctx.fillStyle = '#1a1a1a'; 
-    ctx.fillRect(0, 0, canvas.width, canvas.height); 
-    ctx.strokeStyle = '#fff'; 
-    ctx.lineWidth = 2;
-  },  [canvasRef]);
+		setIsDrawing(true)
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+		if (selectedShape === 'rectangle') {
+			const rect = canvas.getBoundingClientRect()
+			const x = event.clientX - rect.left
+			const y = event.clientY - rect.top
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+			const newElement: ElementType = {
+				x1: x,
+				y1: y,
+				x2: x,
+				y2: y,
+				text: '',
+				tool: selectedShape,
+			}
+			setElements((prev: ElementType[]) => [...prev, newElement])
+			setSelectedElement(newElement)
+		}
+	}
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+	const handleMouseUp = () => {
+		setIsDrawing(false)
+	}
 
-    if (selectedShape === 'text') {
-      const text = prompt('Enter text:', '');
-      if (text) {
-        ctx.font = '16px Arial';
-        ctx.fillStyle = '#fff';
-        ctx.fillText(text, x, y);
-      }
-    } else {
-      ctx.beginPath();
-      if (selectedShape === 'circle') {
-        ctx.arc(x, y, 30, 0, Math.PI * 2);
-      } else if (selectedShape === 'square') {
-        ctx.rect(x - 30, y - 30, 60, 60);
-      }
-      ctx.stroke();
-    }
-  };
+	const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+		if (!isDrawing) return
 
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+		const canvas = canvasRef.current
+		if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+		const ctx = canvas.getContext('2d')
+		if (!ctx) return
 
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  };
+		const rect = canvas.getBoundingClientRect()
+		const x1 = selectedElement?.x1 as number
+		const y1 = selectedElement?.y1 as number
+		const x2 = event.clientX - rect.left
+		const y2 = event.clientY - rect.top
 
-  
-  useEffect(() => {
-    
-    if (canvasRef.current) {
-      (canvasRef.current as any).clear = clearCanvas;
-    }
-  }, []);
+		const newElements = [...elements]
+		switch (selectedShape) {
+			case 'rectangle':
+				newElements[newElements.length - 1].x2 = x2
+				newElements[newElements.length - 1].y2 = y2
+				setElements(newElements)
+				break
+			default:
+				break
+		}
+	}
 
-  return (
-    <div className="flex-1 p-5 bg-[#1a1a1a]">
-      <canvas
-        ref={canvasRef}
-        className="border border-gray-600 rounded-lg"
-        onClick={startDrawing}
-      />
-    </div>
-  );
-});
+	useLayoutEffect(() => {
+		const canvas = canvasRef.current
+		if (!canvas) return
 
+		const ctx = canvas.getContext('2d')
+		if (!ctx) return
 
-export default Canvas;
+		const drawElement = (element: ElementType) => {
+			if (element.tool === 'rectangle') {
+				ctx.strokeRect(
+					element.x1,
+					element.y1,
+					element.x2 - element.x1,
+					element.y2 - element.y1
+				)
+				ctx.stroke()
+			}
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		console.log(elements, 'elements')
+		elements.forEach((element: ElementType) => {
+			drawElement(element)
+		})
+	}, [canvasRef, elements])
+
+	return (
+		<div className="flex-1">
+			<canvas
+				ref={canvasRef}
+				className="border rounded-lg"
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleMouseUp}
+				onMouseMove={handleMouseMove}
+				width={window.innerWidth}
+				height={window.innerHeight}
+			/>
+		</div>
+	)
+})
+
+export default Canvas
