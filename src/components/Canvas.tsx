@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { ToolType, ElementType } from '@/types'
 import { useHistory } from '@/hooks/useHistory'
+import { createElement } from '@/utils/create-element'
 
 interface CanvasProps {
 	selectedShape: ToolType
@@ -20,10 +21,6 @@ const Canvas = forwardRef(function Canvas(
 ) {
 	const localCanvasRef = useRef<HTMLCanvasElement>(null)
 	const [isDrawing, setIsDrawing] = useState(false)
-	const [drawingStartPosition, setDrawingStartPosition] = useState<{
-		x: number
-		y: number
-	}>({ x: 0, y: 0 })
 	const [selectedElement, setSelectedElement] = useState<ElementType | null>(
 		null
 	)
@@ -41,21 +38,25 @@ const Canvas = forwardRef(function Canvas(
 
 		setIsDrawing(true)
 
-		if (selectedShape === 'rectangle') {
-			const rect = canvas.getBoundingClientRect()
-			const x = event.clientX - rect.left
-			const y = event.clientY - rect.top
+		switch (selectedShape) {
+			case 'rectangle':
+			case 'circle': {
+				const rect = canvas.getBoundingClientRect()
+				const x = event.clientX - rect.left
+				const y = event.clientY - rect.top
 
-			const newElement: ElementType = {
-				x1: x,
-				y1: y,
-				x2: x,
-				y2: y,
-				text: '',
-				tool: selectedShape,
+				const newElement = createElement({
+					x1: x,
+					y1: y,
+					x2: x,
+					y2: y,
+					text: '',
+					tool: selectedShape,
+				} as ElementType)
+				setElements((prev: ElementType[]) => [...prev, newElement])
+				setSelectedElement(newElement)
+				break
 			}
-			setElements((prev: ElementType[]) => [...prev, newElement])
-			setSelectedElement(newElement)
 		}
 	}
 
@@ -73,14 +74,17 @@ const Canvas = forwardRef(function Canvas(
 		if (!ctx) return
 
 		const rect = canvas.getBoundingClientRect()
-		const x1 = selectedElement?.x1 as number
-		const y1 = selectedElement?.y1 as number
 		const x2 = event.clientX - rect.left
 		const y2 = event.clientY - rect.top
 
 		const newElements = [...elements]
 		switch (selectedShape) {
 			case 'rectangle':
+				newElements[newElements.length - 1].x2 = x2
+				newElements[newElements.length - 1].y2 = y2
+				setElements(newElements)
+				break
+			case 'circle':
 				newElements[newElements.length - 1].x2 = x2
 				newElements[newElements.length - 1].y2 = y2
 				setElements(newElements)
@@ -104,6 +108,23 @@ const Canvas = forwardRef(function Canvas(
 					element.y1,
 					element.x2 - element.x1,
 					element.y2 - element.y1
+				)
+				ctx.stroke()
+			}
+			if (element.tool === 'circle') {
+				const centerX = (element.x1 + element.x2) / 2
+				const centerY = (element.y1 + element.y2) / 2
+				const radiusX = (element.x2 - element.x1) / 2
+				const radiusY = (element.y2 - element.y1) / 2
+				ctx.beginPath()
+				ctx.ellipse(
+					centerX,
+					centerY,
+					radiusX,
+					radiusY,
+					0,
+					0,
+					2 * Math.PI
 				)
 				ctx.stroke()
 			}
