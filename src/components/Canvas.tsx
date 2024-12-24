@@ -6,28 +6,28 @@ import {
 	ForwardedRef,
 	useState,
 	useLayoutEffect,
+	useImperativeHandle,
 } from 'react'
 import { ToolType, ElementType } from '@/types'
 import { useHistory } from '@/hooks/useHistory'
 import { createElement } from '@/utils/create-element'
+import { drawElement } from '@/utils/draw-element'
 
 interface CanvasProps {
 	selectedShape: ToolType
 }
 
+export interface CanvasRef {
+	clear: () => void
+}
+
 const Canvas = forwardRef(function Canvas(
 	{ selectedShape }: CanvasProps,
-	forwardedRef: ForwardedRef<HTMLCanvasElement>
+	forwardedRef: ForwardedRef<CanvasRef>
 ) {
-	const localCanvasRef = useRef<HTMLCanvasElement>(null)
+	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const [isDrawing, setIsDrawing] = useState(false)
-	const [selectedElement, setSelectedElement] = useState<ElementType | null>(
-		null
-	)
 	const { elements, setElements } = useHistory([])
-
-	const canvasRef =
-		(forwardedRef as React.RefObject<HTMLCanvasElement>) || localCanvasRef
 
 	const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
 		const canvas = canvasRef.current
@@ -54,7 +54,6 @@ const Canvas = forwardRef(function Canvas(
 					tool: selectedShape,
 				} as ElementType)
 				setElements((prev: ElementType[]) => [...prev, newElement])
-				setSelectedElement(newElement)
 				break
 			}
 		}
@@ -94,46 +93,20 @@ const Canvas = forwardRef(function Canvas(
 		}
 	}
 
+	useImperativeHandle(forwardedRef, () => ({
+		clear: () => {
+			setElements([])
+		},
+	}))
+
 	useLayoutEffect(() => {
 		const canvas = canvasRef.current
-		if (!canvas) return
-
-		const ctx = canvas.getContext('2d')
-		if (!ctx) return
-
-		const drawElement = (element: ElementType) => {
-			if (element.tool === 'rectangle') {
-				ctx.strokeRect(
-					element.x1,
-					element.y1,
-					element.x2 - element.x1,
-					element.y2 - element.y1
-				)
-				ctx.stroke()
-			}
-			if (element.tool === 'circle') {
-				const centerX = (element.x1 + element.x2) / 2
-				const centerY = (element.y1 + element.y2) / 2
-				const radiusX = (element.x2 - element.x1) / 2
-				const radiusY = (element.y2 - element.y1) / 2
-				ctx.beginPath()
-				ctx.ellipse(
-					centerX,
-					centerY,
-					radiusX,
-					radiusY,
-					0,
-					0,
-					2 * Math.PI
-				)
-				ctx.stroke()
-			}
-		}
+		const ctx = canvas?.getContext('2d')
+		if (!ctx || !canvas) return
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		console.log(elements, 'elements')
 		elements.forEach((element: ElementType) => {
-			drawElement(element)
+			drawElement(element, ctx)
 		})
 	}, [canvasRef, elements])
 
