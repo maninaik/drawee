@@ -22,7 +22,9 @@ export default function Toolbar({
 							? 'bg-gray-200 '
 							: 'bg-white hover:bg-gray-200'
 					}`}
-					onClick={() => setSelectedShape(Tools.circle)}>
+					onClick={() =>
+						setSelectedShape(Tools.circle as ToolType)
+					}>
 					<CircleIcon className="h-4 w-4" />
 				</button>
 				<button
@@ -31,7 +33,9 @@ export default function Toolbar({
 							? 'bg-gray-200 '
 							: 'bg-white hover:bg-gray-200'
 					}`}
-					onClick={() => setSelectedShape(Tools.rectangle)}>
+					onClick={() =>
+						setSelectedShape(Tools.rectangle as ToolType)
+					}>
 					<SquareIcon className="h-4 w-4" />
 				</button>
 				<button
@@ -40,7 +44,9 @@ export default function Toolbar({
 							? 'bg-gray-200 '
 							: 'bg-white hover:bg-gray-200'
 					}`}
-					onClick={() => setSelectedShape(Tools.text)}>
+					onClick={() =>
+						setSelectedShape(Tools.text as ToolType)
+					}>
 					<TypeOutline className="h-4 w-4" />
 				</button>
 

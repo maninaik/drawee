@@ -1,4 +1,4 @@
-export const Tools: Record<string, string> = {
+export const Tools = {
 	circle: 'circle',
 	rectangle: 'rectangle',
 	text: 'text',
@@ -7,6 +7,7 @@ export const Tools: Record<string, string> = {
 export type ToolType = keyof typeof Tools
 
 export type ElementType = {
+	id: number
 	x1: number
 	y1: number
 	x2: number
@@ -14,3 +15,5 @@ export type ElementType = {
 	text: string
 	tool: ToolType
 }
+
+export type ActionType = 'drawing' | 'selecting' | 'writing' | 'none'

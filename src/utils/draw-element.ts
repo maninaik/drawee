@@ -33,6 +33,12 @@ export const drawElement = (
 			ctx.stroke()
 			break
 		}
+		case 'text': {
+			ctx.textBaseline = 'top'
+			ctx.font = 'normal 24px sans-serif'
+			ctx.fillText(element.text, element.x1, element.y1)
+			break
+		}
 		default: {
 			throw new Error('Draw element: Invalid tool selected')
 		}
