@@ -20,6 +20,8 @@ interface CanvasProps {
 
 export interface CanvasRef {
 	clear: () => void
+	undo: () => void
+	redo: () => void
 }
 
 const Canvas = forwardRef(function Canvas(
@@ -28,7 +30,7 @@ const Canvas = forwardRef(function Canvas(
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const textInputRef = useRef<HTMLInputElement>(null)
-	const { elements, setElements } = useHistory([])
+	const { elements, setElements, undo, redo } = useHistory([])
 	const [action, setAction] = useState<ActionType>('none')
 	const [selectedElement, setSelectedElement] = useState<ElementType | null>(
 		null
@@ -96,12 +98,12 @@ const Canvas = forwardRef(function Canvas(
 			case 'rectangle':
 				newElements[newElements.length - 1].x2 = x2
 				newElements[newElements.length - 1].y2 = y2
-				setElements(newElements)
+				setElements(newElements, true)
 				break
 			case 'circle':
 				newElements[newElements.length - 1].x2 = x2
 				newElements[newElements.length - 1].y2 = y2
-				setElements(newElements)
+				setElements(newElements, true)
 				break
 			default:
 				break
@@ -132,6 +134,12 @@ const Canvas = forwardRef(function Canvas(
 	useImperativeHandle(forwardedRef, () => ({
 		clear: () => {
 			setElements([])
+		},
+		undo: () => {
+			undo()
+		},
+		redo: () => {
+			redo()
 		},
 	}))
 
