@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ElementType } from '@/types'
 
 export const useHistory = (initialState: ElementType[]) => {
@@ -27,6 +27,10 @@ export const useHistory = (initialState: ElementType[]) => {
 	}
 	const undo = () => index > 0 && setIndex(index - 1)
 	const redo = () => index < history.length - 1 && setIndex(index + 1)
+
+	useEffect(() => {
+		console.log(history, 'history')
+	}, [history])
 
 	return {
 		elements: history[index],

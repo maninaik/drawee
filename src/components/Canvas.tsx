@@ -15,7 +15,7 @@ import { createElement } from '@/utils/create-element'
 import { drawElement } from '@/utils/draw-element'
 
 interface CanvasProps {
-	selectedShape: ToolType
+	selectedTool: ToolType
 }
 
 export interface CanvasRef {
@@ -25,7 +25,7 @@ export interface CanvasRef {
 }
 
 const Canvas = forwardRef(function Canvas(
-	{ selectedShape }: CanvasProps,
+	{ selectedTool }: CanvasProps,
 	forwardedRef: ForwardedRef<CanvasRef>
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -45,13 +45,13 @@ const Canvas = forwardRef(function Canvas(
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		if (selectedShape === 'text') {
+		if (selectedTool === 'text') {
 			setAction('writing')
 		} else {
 			setAction('drawing')
 		}
 
-		switch (selectedShape) {
+		switch (selectedTool) {
 			case 'rectangle':
 			case 'text':
 			case 'circle': {
@@ -64,7 +64,7 @@ const Canvas = forwardRef(function Canvas(
 					x2: clientX,
 					y2: clientY,
 					text: '',
-					tool: selectedShape,
+					tool: selectedTool,
 				} as ElementType)
 				setSelectedElement(newElement)
 				setElements((prev: ElementType[]) => [...prev, newElement])
@@ -94,7 +94,7 @@ const Canvas = forwardRef(function Canvas(
 		const y2 = event.clientY - rect.top
 
 		const newElements = [...elements]
-		switch (selectedShape) {
+		switch (selectedTool) {
 			case 'rectangle':
 				newElements[newElements.length - 1].x2 = x2
 				newElements[newElements.length - 1].y2 = y2
@@ -126,7 +126,7 @@ const Canvas = forwardRef(function Canvas(
 		newElements[selectedElement.id].text = text
 		newElements[selectedElement.id].x2 =
 			newElements[selectedElement.id].x1 + textWidth
-		setElements(newElements)
+		setElements(newElements, true)
 		setAction('none')
 		setSelectedElement(null)
 	}
@@ -149,6 +149,7 @@ const Canvas = forwardRef(function Canvas(
 		if (!ctx || !canvas) return
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		console.log(elements, 'elements')
 		elements.forEach((element: ElementType) => {
 			if (
 				action === 'writing' &&

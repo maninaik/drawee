@@ -1,16 +1,22 @@
-import { CircleIcon, RefreshCcw, SquareIcon, TypeOutline } from 'lucide-react'
+import {
+	CircleIcon,
+	MousePointer2,
+	RefreshCcw,
+	SquareIcon,
+	TypeOutline,
+} from 'lucide-react'
 
 import { ToolType, Tools } from '@/types'
 
 interface ToolbarProps {
-	selectedShape: ToolType
-	setSelectedShape: (shape: ToolType) => void
+	selectedTool: ToolType
+	setSelectedTool: (tool: ToolType) => void
 	onClear: () => void
 }
 
 export default function Toolbar({
-	selectedShape,
-	setSelectedShape,
+	selectedTool,
+	setSelectedTool,
 	onClear,
 }: ToolbarProps) {
 	return (
@@ -18,34 +24,45 @@ export default function Toolbar({
 			<div className="flex space-x-2">
 				<button
 					className={`w-full p-2 rounded center-content ${
-						selectedShape === Tools.circle
+						selectedTool === Tools.select
 							? 'bg-gray-200 '
 							: 'bg-white hover:bg-gray-200'
 					}`}
 					onClick={() =>
-						setSelectedShape(Tools.circle as ToolType)
+						setSelectedTool(Tools.select as ToolType)
+					}>
+					<MousePointer2 className="h-4 w-4" />
+				</button>
+				<button
+					className={`w-full p-2 rounded center-content ${
+						selectedTool === Tools.circle
+							? 'bg-gray-200 '
+							: 'bg-white hover:bg-gray-200'
+					}`}
+					onClick={() =>
+						setSelectedTool(Tools.circle as ToolType)
 					}>
 					<CircleIcon className="h-4 w-4" />
 				</button>
 				<button
 					className={`w-full p-2 rounded center-content ${
-						selectedShape === Tools.rectangle
+						selectedTool === Tools.rectangle
 							? 'bg-gray-200 '
 							: 'bg-white hover:bg-gray-200'
 					}`}
 					onClick={() =>
-						setSelectedShape(Tools.rectangle as ToolType)
+						setSelectedTool(Tools.rectangle as ToolType)
 					}>
 					<SquareIcon className="h-4 w-4" />
 				</button>
 				<button
 					className={`w-full p-2 rounded center-content   ${
-						selectedShape === Tools.text
+						selectedTool === Tools.text
 							? 'bg-gray-200 '
 							: 'bg-white hover:bg-gray-200'
 					}`}
 					onClick={() =>
-						setSelectedShape(Tools.text as ToolType)
+						setSelectedTool(Tools.text as ToolType)
 					}>
 					<TypeOutline className="h-4 w-4" />
 				</button>

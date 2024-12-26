@@ -1,4 +1,5 @@
 export const Tools = {
+	select: 'select',
 	circle: 'circle',
 	rectangle: 'rectangle',
 	text: 'text',

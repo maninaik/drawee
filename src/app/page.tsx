@@ -8,7 +8,7 @@ import ActionBar from '@/components/ActionBar'
 
 export default function Home() {
 	const canvasRef = useRef<CanvasRef>(null)
-	const [selectedTool, setSelectedTool] = useState<ToolType>('circle')
+	const [selectedTool, setSelectedTool] = useState<ToolType>('select')
 
 	const clearCanvas = () => {
 		canvasRef.current?.clear()
@@ -25,13 +25,13 @@ export default function Home() {
 	return (
 		<div className="flex min-h-screen">
 			<Toolbar
-				selectedShape={selectedTool}
-				setSelectedShape={setSelectedTool}
+				selectedTool={selectedTool}
+				setSelectedTool={setSelectedTool}
 				onClear={clearCanvas}
 			/>
 			<Canvas
 				ref={canvasRef}
-				selectedShape={selectedTool}
+				selectedTool={selectedTool}
 			/>
 			<ActionBar
 				onUndo={undo}
