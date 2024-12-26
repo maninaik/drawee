@@ -21,7 +21,9 @@ export const useHistory = (initialState: ElementType[]) => {
 				return newHistory
 			})
 		} else {
-			setHistory(prev => [...prev, action])
+			const historyCopy = [...history].slice(0, index + 1)
+			historyCopy.push(action)
+			setHistory(historyCopy)
 			setIndex(prev => prev + 1)
 		}
 	}
