@@ -89,6 +89,8 @@ const Canvas = forwardRef(function Canvas(
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
+		if (!selectedElement) return
+
 		const rect = canvas.getBoundingClientRect()
 		const x2 = event.clientX - rect.left
 		const y2 = event.clientY - rect.top
@@ -96,13 +98,13 @@ const Canvas = forwardRef(function Canvas(
 		const newElements = [...elements]
 		switch (selectedTool) {
 			case 'rectangle':
-				newElements[newElements.length - 1].x2 = x2
-				newElements[newElements.length - 1].y2 = y2
+				newElements[selectedElement.id].x2 = x2
+				newElements[selectedElement.id].y2 = y2
 				setElements(newElements, true)
 				break
 			case 'circle':
-				newElements[newElements.length - 1].x2 = x2
-				newElements[newElements.length - 1].y2 = y2
+				newElements[selectedElement.id].x2 = x2
+				newElements[selectedElement.id].y2 = y2
 				setElements(newElements, true)
 				break
 			default:
