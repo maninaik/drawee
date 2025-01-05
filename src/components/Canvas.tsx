@@ -165,10 +165,10 @@ const Canvas = forwardRef(function Canvas(
 
 	useEffect(() => {
 		if (action === 'writing' && selectedElement) {
-			// focus the text input after the canvas is rendered, hence setTimeout(0)
-			setTimeout(() => {
+			// Focus the text input after the canvas is rendered
+			requestAnimationFrame(() => {
 				textInputRef.current?.focus()
-			}, 0)
+			})
 		}
 	}, [action, selectedElement])
 

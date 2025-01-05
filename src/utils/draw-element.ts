@@ -6,6 +6,7 @@ export const drawElement = (
 ) => {
 	switch (element.tool) {
 		case 'rectangle': {
+			ctx.beginPath()
 			ctx.strokeRect(
 				element.x1,
 				element.y1,
