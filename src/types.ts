@@ -17,4 +17,4 @@ export type ElementType = {
 	tool: ToolType
 }
 
-export type ActionType = 'drawing' | 'selecting' | 'writing' | 'none'
+export type ActionType = 'drawing' | 'selecting' | 'writing' | 'moving' | 'none'

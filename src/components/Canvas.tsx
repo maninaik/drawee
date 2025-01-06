@@ -9,10 +9,12 @@ import {
 	useImperativeHandle,
 	useEffect,
 } from 'react'
-import { ToolType, ElementType, ActionType } from '@/types'
+import { ToolType, ElementType, ActionType, Tools } from '@/types'
 import { useHistory } from '@/hooks/useHistory'
 import { createElement } from '@/utils/create-element'
 import { drawElement } from '@/utils/draw-element'
+import { getElementAtPoint } from '@/utils/get-element-at-point'
+import { positionToCursor } from '@/utils/position-to-cursor'
 
 interface CanvasProps {
 	selectedTool: ToolType
@@ -35,6 +37,10 @@ const Canvas = forwardRef(function Canvas(
 	const [selectedElement, setSelectedElement] = useState<ElementType | null>(
 		null
 	)
+	const [dragOffset, setDragOffset] = useState<{
+		x: number
+		y: number
+	} | null>(null)
 
 	const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
 		if (action === 'writing') return
@@ -45,8 +51,20 @@ const Canvas = forwardRef(function Canvas(
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
+		const { clientX: x, clientY: y } = event
+
 		if (selectedTool === 'text') {
 			setAction('writing')
+		} else if (selectedTool === 'select') {
+			const element = getElementAtPoint(x, y, elements)
+			if (element) {
+				setSelectedElement(element)
+				setAction('moving')
+				setDragOffset({
+					x: x - element.x1,
+					y: y - element.y1,
+				})
+			}
 		} else {
 			setAction('drawing')
 		}
@@ -55,14 +73,12 @@ const Canvas = forwardRef(function Canvas(
 			case 'rectangle':
 			case 'text':
 			case 'circle': {
-				const { clientX, clientY } = event
-
 				const newElement = createElement({
 					id: elements.length,
-					x1: clientX,
-					y1: clientY,
-					x2: clientX,
-					y2: clientY,
+					x1: x,
+					y1: y,
+					x2: x,
+					y2: y,
 					text: '',
 					tool: selectedTool,
 				} as ElementType)
@@ -78,33 +94,63 @@ const Canvas = forwardRef(function Canvas(
 
 		setAction('none')
 		setSelectedElement(null)
+		setDragOffset(null)
 	}
 
 	const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-		if (action !== 'drawing') return
-
 		const canvas = canvasRef.current
 		if (!canvas) return
 
 		const ctx = canvas.getContext('2d')
 		if (!ctx) return
 
-		if (!selectedElement) return
+		const { clientX: x, clientY: y } = event
 
-		const rect = canvas.getBoundingClientRect()
-		const x2 = event.clientX - rect.left
-		const y2 = event.clientY - rect.top
+		if (selectedTool === Tools.select) {
+			const element = getElementAtPoint(x, y, elements)
+			if (element) {
+				canvas.style.cursor = positionToCursor(
+					element.selectPosition as string
+				) as string
+			} else {
+				canvas.style.cursor = 'default'
+			}
+		}
 
 		const newElements = [...elements]
+
+		if (action === 'moving' && selectedElement && dragOffset) {
+			const {
+				id,
+				x1: oldX1,
+				y1: oldY1,
+				x2: oldX2,
+				y2: oldY2,
+			} = selectedElement
+			const width = oldX2 - oldX1
+			const height = oldY2 - oldY1
+
+			const newX1 = x - dragOffset.x
+			const newY1 = y - dragOffset.y
+
+			newElements[id] = {
+				...newElements[id],
+				x1: newX1,
+				y1: newY1,
+				x2: newX1 + width,
+				y2: newY1 + height,
+			}
+			setElements(newElements, true)
+		}
+
+		if (action !== 'drawing') return
+		if (!selectedElement) return
+
 		switch (selectedTool) {
 			case 'rectangle':
-				newElements[selectedElement.id].x2 = x2
-				newElements[selectedElement.id].y2 = y2
-				setElements(newElements, true)
-				break
 			case 'circle':
-				newElements[selectedElement.id].x2 = x2
-				newElements[selectedElement.id].y2 = y2
+				newElements[selectedElement.id].x2 = x
+				newElements[selectedElement.id].y2 = y
 				setElements(newElements, true)
 				break
 			default:
@@ -123,11 +169,14 @@ const Canvas = forwardRef(function Canvas(
 		if (!ctx) return
 
 		const text = (event.target as HTMLInputElement).value.trim()
+		ctx.font = '24px sans-serif'
 		const newElements = [...elements]
 		const textWidth = ctx.measureText(text).width
 		newElements[selectedElement.id].text = text
 		newElements[selectedElement.id].x2 =
 			newElements[selectedElement.id].x1 + textWidth
+		newElements[selectedElement.id].y2 =
+			newElements[selectedElement.id].y1 + 24
 		setElements(newElements, true)
 		setAction('none')
 		setSelectedElement(null)
@@ -182,6 +231,7 @@ const Canvas = forwardRef(function Canvas(
 					style={{
 						top: selectedElement?.y1,
 						left: selectedElement?.x1,
+						fontSize: '24px',
 					}}
 					onBlur={handleTextBlur}
 					onKeyDown={event => {
