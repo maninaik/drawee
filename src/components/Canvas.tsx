@@ -60,6 +60,7 @@ const Canvas = forwardRef(function Canvas(
 			if (element) {
 				setSelectedElement(element)
 				setAction('moving')
+				setElements(prevElements => prevElements)
 				setDragOffset({
 					x: x - element.x1,
 					y: y - element.y1,

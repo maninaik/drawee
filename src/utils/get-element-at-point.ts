@@ -4,20 +4,26 @@ export const getElementAtPoint = (
 	x: number,
 	y: number,
 	elements: ElementType[]
-) => {
-	return elements
-		.map(element => ({
-			...element,
-			selectPosition: isPointInElement(x, y, element) ?? null,
-		}))
-		.find(element => element.selectPosition !== null)
+):
+	| (ElementType & {
+			selectPosition: string | null
+	  })
+	| null => {
+	return (
+		elements
+			.map(element => ({
+				...element,
+				selectPosition: isPointInElement(x, y, element) ?? null,
+			}))
+			.find(element => element.selectPosition !== null) || null
+	)
 }
 
 export const isPointInElement = (
 	x: number,
 	y: number,
 	element: ElementType
-) => {
+): string | null => {
 	switch (element.tool) {
 		case 'text':
 			const insideText =
@@ -27,13 +33,19 @@ export const isPointInElement = (
 				y <= element.y2
 					? 'inside'
 					: null
-			console.log(insideText, 'inside text')
 			return insideText
 		case 'circle':
-			return (
-				Math.sqrt((x - element.x1) ** 2 + (y - element.y1) ** 2) <=
-				Math.abs(element.x2 - element.x1) / 2
-			)
+			const { x1, y1, x2, y2 } = element
+			const h = (x1 + x2) / 2
+			const k = (y1 + y2) / 2
+
+			const a = Math.abs(x2 - x1) / 2
+			const b = Math.abs(y2 - y1) / 2
+
+			const value = (x - h) ** 2 / a ** 2 + (y - k) ** 2 / b ** 2
+
+			const inside = value <= 1
+			return inside ? 'inside' : null
 		case 'rectangle':
 			const topLeft = nearPoint(
 				x,
@@ -58,6 +70,8 @@ export const isPointInElement = (
 					: null
 
 			return topLeft || bottomRight || insideRectangle
+		default:
+			return null
 	}
 }
 

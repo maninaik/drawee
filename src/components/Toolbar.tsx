@@ -33,7 +33,7 @@ export default function Toolbar({
 					}>
 					<MousePointer2 className="h-4 w-4" />
 				</button>
-				{/* <button
+				<button
 					className={`w-full p-2 rounded center-content ${
 						selectedTool === Tools.circle
 							? 'bg-gray-200 '
@@ -43,7 +43,7 @@ export default function Toolbar({
 						setSelectedTool(Tools.circle as ToolType)
 					}>
 					<CircleIcon className="h-4 w-4" />
-				</button> */}
+				</button>
 				<button
 					className={`w-full p-2 rounded center-content ${
 						selectedTool === Tools.rectangle
