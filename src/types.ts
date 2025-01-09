@@ -17,4 +17,21 @@ export type ElementType = {
 	tool: ToolType
 }
 
-export type ActionType = 'drawing' | 'selecting' | 'writing' | 'moving' | 'none'
+export type SelectedElementType = ElementType & {
+	position?: PositionType | null
+}
+
+export type ActionType =
+	| 'drawing'
+	| 'selecting'
+	| 'writing'
+	| 'moving'
+	| 'resizing'
+	| 'none'
+
+export type PositionType =
+	| 'inside'
+	| 'top-left'
+	| 'bottom-right'
+	| 'top-right'
+	| 'bottom-left'

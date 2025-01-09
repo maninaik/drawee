@@ -9,12 +9,19 @@ import {
 	useImperativeHandle,
 	useEffect,
 } from 'react'
-import { ToolType, ElementType, ActionType, Tools } from '@/types'
+import {
+	ToolType,
+	ElementType,
+	ActionType,
+	Tools,
+	SelectedElementType,
+} from '@/types'
 import { useHistory } from '@/hooks/useHistory'
 import { createElement } from '@/utils/create-element'
 import { drawElement } from '@/utils/draw-element'
 import { getElementAtPoint } from '@/utils/get-element-at-point'
 import { positionToCursor } from '@/utils/position-to-cursor'
+import { getResizedCordinates } from '@/utils/get-resized-cordinates'
 
 interface CanvasProps {
 	selectedTool: ToolType
@@ -34,9 +41,8 @@ const Canvas = forwardRef(function Canvas(
 	const textInputRef = useRef<HTMLInputElement>(null)
 	const { elements, setElements, undo, redo } = useHistory([])
 	const [action, setAction] = useState<ActionType>('none')
-	const [selectedElement, setSelectedElement] = useState<ElementType | null>(
-		null
-	)
+	const [selectedElement, setSelectedElement] =
+		useState<SelectedElementType | null>(null)
 	const [dragOffset, setDragOffset] = useState<{
 		x: number
 		y: number
@@ -59,12 +65,17 @@ const Canvas = forwardRef(function Canvas(
 			const element = getElementAtPoint(x, y, elements)
 			if (element) {
 				setSelectedElement(element)
-				setAction('moving')
 				setElements(prevElements => prevElements)
-				setDragOffset({
-					x: x - element.x1,
-					y: y - element.y1,
-				})
+
+				if (element.position === 'inside') {
+					setAction('moving')
+					setDragOffset({
+						x: x - element.x1,
+						y: y - element.y1,
+					})
+				} else {
+					setAction('resizing')
+				}
 			}
 		} else {
 			setAction('drawing')
@@ -111,7 +122,7 @@ const Canvas = forwardRef(function Canvas(
 			const element = getElementAtPoint(x, y, elements)
 			if (element) {
 				canvas.style.cursor = positionToCursor(
-					element.selectPosition as string
+					element.position as string
 				) as string
 			} else {
 				canvas.style.cursor = 'default'
@@ -140,6 +151,36 @@ const Canvas = forwardRef(function Canvas(
 				y1: newY1,
 				x2: newX1 + width,
 				y2: newY1 + height,
+			}
+			setElements(newElements, true)
+		}
+
+		if (action === 'resizing' && selectedElement) {
+			const {
+				id,
+				x1: oldX1,
+				y1: oldY1,
+				x2: oldX2,
+				y2: oldY2,
+				position,
+			} = selectedElement
+
+			const { x1, y1, x2, y2 } = getResizedCordinates(
+				oldX1,
+				oldY1,
+				oldX2,
+				oldY2,
+				x,
+				y,
+				position ?? null
+			)
+
+			newElements[id] = {
+				...newElements[id],
+				x1,
+				y1,
+				x2,
+				y2,
 			}
 			setElements(newElements, true)
 		}
@@ -216,7 +257,7 @@ const Canvas = forwardRef(function Canvas(
 	useEffect(() => {
 		if (action === 'writing' && selectedElement) {
 			// Focus the text input after the canvas is rendered
-			requestAnimationFrame(() => {
+			requestIdleCallback(() => {
 				textInputRef.current?.focus()
 			})
 		}

@@ -1,4 +1,4 @@
-import { ElementType } from '@/types'
+import { ElementType, PositionType } from '@/types'
 
 export const getElementAtPoint = (
 	x: number,
@@ -6,16 +6,16 @@ export const getElementAtPoint = (
 	elements: ElementType[]
 ):
 	| (ElementType & {
-			selectPosition: string | null
+			position: PositionType | null
 	  })
 	| null => {
 	return (
 		elements
 			.map(element => ({
 				...element,
-				selectPosition: isPointInElement(x, y, element) ?? null,
+				position: isPointInElement(x, y, element) ?? null,
 			}))
-			.find(element => element.selectPosition !== null) || null
+			.find(element => element.position !== null) || null
 	)
 }
 
@@ -23,7 +23,7 @@ export const isPointInElement = (
 	x: number,
 	y: number,
 	element: ElementType
-): string | null => {
+): PositionType | null => {
 	switch (element.tool) {
 		case 'text':
 			const insideText =
@@ -61,6 +61,20 @@ export const isPointInElement = (
 				element.y2,
 				'bottom-right'
 			)
+			const topRight = nearPoint(
+				x,
+				y,
+				element.x2,
+				element.y1,
+				'top-right'
+			)
+			const bottomLeft = nearPoint(
+				x,
+				y,
+				element.x1,
+				element.y2,
+				'bottom-left'
+			)
 			const insideRectangle =
 				x >= element.x1 &&
 				x <= element.x2 &&
@@ -69,7 +83,13 @@ export const isPointInElement = (
 					? 'inside'
 					: null
 
-			return topLeft || bottomRight || insideRectangle
+			return (
+				topLeft ||
+				bottomRight ||
+				topRight ||
+				bottomLeft ||
+				insideRectangle
+			)
 		default:
 			return null
 	}
@@ -80,7 +100,7 @@ const nearPoint = (
 	y: number,
 	pointX: number,
 	pointY: number,
-	position: string
+	position: PositionType
 ) => {
 	return Math.abs(x - pointX) < 5 && Math.abs(y - pointY) < 5
 		? position
