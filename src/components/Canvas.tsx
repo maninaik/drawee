@@ -22,6 +22,9 @@ import { drawElement } from '@/utils/draw-element'
 import { getElementAtPoint } from '@/utils/get-element-at-point'
 import { positionToCursor } from '@/utils/position-to-cursor'
 import { getResizedCordinates } from '@/utils/get-resized-cordinates'
+import { useUpdateMyPresence } from '@liveblocks/react'
+import { useOthers } from '@liveblocks/react/suspense'
+import Cursor from './Cursor'
 
 interface CanvasProps {
 	selectedTool: ToolType
@@ -47,7 +50,8 @@ const Canvas = forwardRef(function Canvas(
 		x: number
 		y: number
 	} | null>(null)
-
+	const updateMyPresence = useUpdateMyPresence()
+	const others = useOthers()
 	const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
 		if (action === 'writing') return
 
@@ -264,7 +268,23 @@ const Canvas = forwardRef(function Canvas(
 	}, [action, selectedElement])
 
 	return (
-		<div className="flex-1">
+		<div
+			className="flex-1"
+			onPointerMove={e => {
+				updateMyPresence({ cursor: { x: e.clientX, y: e.clientY } })
+			}}
+			onPointerLeave={() => {
+				updateMyPresence({ cursor: null })
+			}}>
+			{others.map(({ connectionId, presence }) =>
+				presence.cursor ? (
+					<Cursor
+						key={connectionId}
+						x={presence.cursor.x}
+						y={presence.cursor.y}
+					/>
+				) : null
+			)}
 			{action === 'writing' && (
 				<input
 					type="text"
