@@ -6,6 +6,7 @@ import Canvas, { CanvasRef } from '@/components/Canvas'
 import { ToolType } from '@/types'
 import ActionBar from '@/components/ActionBar'
 import { Room } from './Room'
+import CursorPresence from '@/components/CursorPresence'
 
 export default function Home() {
 	const canvasRef = useRef<CanvasRef>(null)
@@ -26,6 +27,7 @@ export default function Home() {
 	return (
 		<div className="flex min-h-screen">
 			<Room>
+				<CursorPresence />
 				<Toolbar
 					selectedTool={selectedTool}
 					setSelectedTool={setSelectedTool}
