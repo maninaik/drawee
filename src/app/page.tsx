@@ -27,20 +27,21 @@ export default function Home() {
 	return (
 		<div className="flex min-h-screen">
 			<Room>
-				<CursorPresence />
-				<Toolbar
-					selectedTool={selectedTool}
-					setSelectedTool={setSelectedTool}
-					onClear={clearCanvas}
-				/>
-				<Canvas
-					ref={canvasRef}
-					selectedTool={selectedTool}
-				/>
-				<ActionBar
-					onUndo={undo}
-					onRedo={redo}
-				/>
+				<CursorPresence>
+					<Toolbar
+						selectedTool={selectedTool}
+						setSelectedTool={setSelectedTool}
+						onClear={clearCanvas}
+					/>
+					<Canvas
+						ref={canvasRef}
+						selectedTool={selectedTool}
+					/>
+					<ActionBar
+						onUndo={undo}
+						onRedo={redo}
+					/>
+				</CursorPresence>
 			</Room>
 		</div>
 	)

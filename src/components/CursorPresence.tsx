@@ -3,7 +3,11 @@
 import { useUpdateMyPresence, useOthers } from '@liveblocks/react'
 import Cursor from './Cursor'
 
-export default function CursorPresence() {
+export default function CursorPresence({
+	children,
+}: {
+	children: React.ReactNode
+}) {
 	const updateMyPresence = useUpdateMyPresence()
 	const others = useOthers()
 
@@ -25,6 +29,7 @@ export default function CursorPresence() {
 					/>
 				) : null
 			)}
+			{children}
 		</div>
 	)
 }
