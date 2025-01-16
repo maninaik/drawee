@@ -9,14 +9,20 @@ import {
 import { LiveList } from '@liveblocks/client'
 import { LiveObject } from '@liveblocks/client'
 
-export function Room({ children }: { children: ReactNode }) {
+export function Room({
+	children,
+	roomId,
+}: {
+	children: ReactNode
+	roomId: string
+}) {
 	return (
 		<LiveblocksProvider
 			publicApiKey={
 				'pk_prod_1q3TwnvuG1LS1NuNRNru_27_AqXm8YMrQozFSOd2yJejpHZOS0goMiKCjbFNglFk'
 			}>
 			<RoomProvider
-				id="my-room"
+				id={roomId}
 				initialPresence={{ cursor: null }}
 				initialStorage={{
 					history: new LiveList([]),

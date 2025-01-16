@@ -1,6 +1,5 @@
 import { useStorage, useMutation } from '@liveblocks/react'
 import { ElementType } from '@/types'
-import { useEffect } from 'react'
 
 export const useHistory = (initialState: ElementType[]) => {
 	const history = useStorage(root => root.history)
