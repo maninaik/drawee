@@ -6,6 +6,8 @@ import {
 	RoomProvider,
 	ClientSideSuspense,
 } from '@liveblocks/react/suspense'
+import { LiveList } from '@liveblocks/client'
+import { LiveObject } from '@liveblocks/client'
 
 export function Room({ children }: { children: ReactNode }) {
 	return (
@@ -15,9 +17,13 @@ export function Room({ children }: { children: ReactNode }) {
 			}>
 			<RoomProvider
 				id="my-room"
-				initialPresence={{ cursor: null }}>
+				initialPresence={{ cursor: null }}
+				initialStorage={{
+					history: new LiveList([]),
+					currentIndex: new LiveObject({ value: 0 }),
+				}}>
 				<ClientSideSuspense fallback={<div>Loading…</div>}>
-					{children}
+					{() => children}
 				</ClientSideSuspense>
 			</RoomProvider>
 		</LiveblocksProvider>

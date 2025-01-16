@@ -11,16 +11,6 @@ export function getResizedCordinates(
 ) {
 	if (!position) return { x1: oldX1, y1: oldY1, x2: oldX2, y2: oldY2 }
 
-	console.log(x, y, 'x, y at resizing')
-	console.log(
-		oldX1,
-		oldY1,
-		oldX2,
-		oldY2,
-		'oldX1, oldY1, oldX2, oldY2 at resizing'
-	)
-	console.log(position, 'position at resizing')
-
 	if (position === 'top-left') {
 		return { x1: x, y1: y, x2: oldX2, y2: oldY2 }
 	}
