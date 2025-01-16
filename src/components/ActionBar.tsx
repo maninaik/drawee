@@ -23,7 +23,6 @@ const ActionBar = ({ onUndo, onRedo }: ActionBarProps) => {
 				onClick={onRedo}>
 				<Redo2 className="w-4 h-4" />
 			</button>
-			<div className="bg-gray-200">{others.length}</div>
 		</div>
 	)
 }
