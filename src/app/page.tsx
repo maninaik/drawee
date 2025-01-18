@@ -24,9 +24,9 @@ export default function Home() {
 						className="px-4 py-2 rounded-md border border-gray-300">
 						Create Room
 					</button>
-					<button className="px-4 py-2 rounded-md border border-gray-300">
+					{/* <button className="px-4 py-2 rounded-md border border-gray-300">
 						Join Room
-					</button>
+					</button> */}
 				</div>
 			</div>
 		</main>
