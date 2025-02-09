@@ -24,6 +24,7 @@ export const isPointInElement = (
 	y: number,
 	element: ElementType
 ): PositionType | null => {
+	const { x1, y1, x2, y2 } = element
 	switch (element.tool) {
 		case 'text':
 			const insideText =
@@ -35,7 +36,6 @@ export const isPointInElement = (
 					: null
 			return insideText
 		case 'circle':
-			const { x1, y1, x2, y2 } = element
 			const h = (x1 + x2) / 2
 			const k = (y1 + y2) / 2
 
@@ -90,6 +90,41 @@ export const isPointInElement = (
 				bottomLeft ||
 				insideRectangle
 			)
+		case 'line':
+			const nearHead = nearPoint(x, y, x2, y2, 'arrow-head')
+
+			if (nearHead) {
+				return nearHead
+			}
+
+			const lengthSquared = (x2 - x1) ** 2 + (y2 - y1) ** 2
+
+			if (lengthSquared === 0) {
+				// If it's a point, just check distance to that point
+				const distance = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2)
+				return distance < 10 ? 'inside' : null
+			}
+
+			// Calculate projection point parameter
+			const t = Math.max(
+				0,
+				Math.min(
+					1,
+					((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) /
+						lengthSquared
+				)
+			)
+
+			// Calculate closest point on line segment
+			const projectionX = x1 + t * (x2 - x1)
+			const projectionY = y1 + t * (y2 - y1)
+
+			// Calculate distance to closest point
+			const distance = Math.sqrt(
+				(x - projectionX) ** 2 + (y - projectionY) ** 2
+			)
+
+			return distance < 10 ? 'inside' : null
 		default:
 			return null
 	}

@@ -84,6 +84,7 @@ const Canvas = forwardRef(function Canvas(
 		switch (selectedTool) {
 			case 'rectangle':
 			case 'text':
+			case 'line':
 			case 'circle': {
 				const newElement = createElement({
 					id: elements.length,
@@ -190,6 +191,7 @@ const Canvas = forwardRef(function Canvas(
 
 		switch (selectedTool) {
 			case 'rectangle':
+			case 'line':
 			case 'circle':
 				newElements[selectedElement.id].x2 = x
 				newElements[selectedElement.id].y2 = y

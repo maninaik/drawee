@@ -16,6 +16,32 @@ export const drawElement = (
 			ctx.stroke()
 			break
 		}
+		case 'line': {
+			ctx.beginPath()
+			ctx.moveTo(element.x1, element.y1)
+			ctx.lineTo(element.x2, element.y2)
+			ctx.stroke()
+
+			const headLength = 20
+			const angle = Math.atan2(
+				element.y2 - element.y1,
+				element.x2 - element.x1
+			)
+
+			ctx.beginPath()
+			ctx.moveTo(element.x2, element.y2)
+			ctx.lineTo(
+				element.x2 - headLength * Math.cos(angle - Math.PI / 6),
+				element.y2 - headLength * Math.sin(angle - Math.PI / 6)
+			)
+			ctx.moveTo(element.x2, element.y2)
+			ctx.lineTo(
+				element.x2 - headLength * Math.cos(angle + Math.PI / 6),
+				element.y2 - headLength * Math.sin(angle + Math.PI / 6)
+			)
+			ctx.stroke()
+			break
+		}
 		case 'circle': {
 			const centerX = (element.x1 + element.x2) / 2
 			const centerY = (element.y1 + element.y2) / 2

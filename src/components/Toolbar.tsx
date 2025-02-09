@@ -1,6 +1,7 @@
 import {
 	CircleIcon,
 	MousePointer2,
+	MoveRight,
 	RefreshCcw,
 	SquareIcon,
 	TypeOutline,
@@ -65,6 +66,17 @@ export default function Toolbar({
 						setSelectedTool(Tools.text as ToolType)
 					}>
 					<TypeOutline className="h-4 w-4" />
+				</button>
+				<button
+					className={`w-full p-2 rounded center-content ${
+						selectedTool === Tools.line
+							? 'bg-gray-200 '
+							: 'bg-white hover:bg-gray-200'
+					}`}
+					onClick={() => {
+						setSelectedTool(Tools.line as ToolType)
+					}}>
+					<MoveRight className="h-4 w-4" />
 				</button>
 
 				<button

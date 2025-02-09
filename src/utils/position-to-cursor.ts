@@ -8,6 +8,8 @@ export const positionToCursor = (position: string) => {
 			return 'nesw-resize'
 		case 'inside':
 			return 'move'
+		case 'arrow-head':
+			return 'move'
 		default:
 			return 'default'
 	}

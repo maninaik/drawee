@@ -18,8 +18,8 @@ So just create a room and share the link with your mate to start collaborating!
 
 
 TODO:
-1. Add more shapes like arrow.
-2. Show user's name on their cursor.
-3. Add join room functionality.
-4. Add unit tests.
+
+1. Show user's name on their cursor.
+2. Add join room functionality.
+3. Add unit tests.
    

@@ -3,6 +3,7 @@ export const Tools = {
 	circle: 'circle',
 	rectangle: 'rectangle',
 	text: 'text',
+	line: 'line',
 }
 
 export type ToolType = keyof typeof Tools
@@ -35,3 +36,4 @@ export type PositionType =
 	| 'bottom-right'
 	| 'top-right'
 	| 'bottom-left'
+	| 'arrow-head'
